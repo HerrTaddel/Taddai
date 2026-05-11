@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="manifest" href="manifest.json">
+<title>KI Berater Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--s1:#13131a;--s2:#1c1c27;--s3:#252535;--border:rgba(255,255,255,0.08);--text:#e8e8f0;--muted:#7070a0;--dim:#505070;--gpt:#10a37f;--gem:#4285F4;--cld:#D97757;--general:#6c8fff;--code:#00d084;--game:#ff6b9d;--web:#fca311;--data:#00d9ff;--write:#a78bfa;--math:#14f195;--science:#00e9ff;--devops:#ff006e;--audio:#ffbe0b;--accent:var(--general);}*{box-sizing:border-box;margin:0;padding:0;}body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;height:100vh;display:flex;overflow:hidden;}
+.sidebar{width:260px;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sidebar-header{padding:14px;border-bottom:1px solid var(--border);}
+.new-chat{width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px;font:500 13px 'DM Sans';cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.new-chat:hover{opacity:.9;}
+.mode-selector{padding:12px 8px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:6px;}
+.mode-btn{width:100%;padding:8px 12px;background:none;border:1px solid transparent;border-radius:6px;color:var(--muted);cursor:pointer;font:12px 'DM Sans';text-align:left;transition:all .15s;margin-bottom:3px;}
+.mode-btn:hover{background:var(--s2);color:var(--text);}
+.mode-btn.active{background:var(--s3);border-color:var(--accent);color:var(--text);}
+.mode-btn span{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle;}
+.chat-list{flex:1;padding:8px;font-size:12px;}
+.chat-item{padding:10px;background:none;border:1px solid transparent;border-radius:6px;cursor:pointer;margin-bottom:3px;color:var(--muted);transition:all .15s;}
+.chat-item:hover{background:var(--s2);}
+.chat-item.active{background:var(--s3);color:var(--text);border-color:var(--accent);}
+.chat-title{font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chat-meta{font-size:10px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.main{flex:1;display:flex;flex-direction:column;}
+.header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo{font-size:16px;font-weight:600;}
+.logo span{color:var(--accent);}
+.mode-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:8px;background:var(--s2);border:1px solid var(--border);font-size:11px;font-weight:500;margin-left:12px;}
+.mode-badge-dot{width:6px;height:6px;border-radius:50%;}
+.toggle-group{margin-left:auto;display:flex;gap:8px;}
+.toggle-btn{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font:'DM Sans';font-size:12px;font-weight:500;transition:all .15s;}
+.toggle-btn:hover{color:var(--text);}
+.toggle-btn.active{background:var(--s2);border-color:var(--accent);color:var(--text);}
+.chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:18px;}
+.chat-area::-webkit-scrollbar{width:4px;}
+.chat-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.msg{display:flex;flex-direction:column;gap:4px;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;}}
+.msg-user{align-items:flex-end;}
+.msg-user .bubble{background:var(--accent);color:#fff;border-radius:18px 18px 4px 18px;padding:11px 16px;max-width:75%;font-size:13px;line-height:1.5;}
+.msg-ai .bubble{background:var(--s1);border:1px solid var(--border);border-radius:4px 18px 18px 18px;padding:0;}
+.bubble-head{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:10px;}
+.c-pill{padding:3px 10px;border-radius:12px;font-weight:500;display:flex;align-items:center;gap:4px;border:1px solid;background:var(--s2);}
+.c-dot{width:5px;height:5px;border-radius:50%;}
+.synth{margin-left:auto;color:var(--dim);font-size:9px;letter-spacing:.05em;text-transform:uppercase;}
+.bubble-body{padding:14px;font-size:13px;line-height:1.7;}
+.bubble-body p{margin-bottom:11px;}
+.bubble-body p:last-child{margin-bottom:0;}
+.bubble-body strong{color:#fff;font-weight:600;}
+.bubble-body ul{padding-left:18px;margin:10px 0;}
+.bubble-body li{margin-bottom:5px;}
+.sources{padding:12px 14px;border-top:1px solid var(--border);}
+.src-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:6px;}
+.src-list{display:flex;flex-wrap:wrap;gap:5px;}
+.src-link{display:flex;align-items:center;gap:4px;padding:4px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;text-decoration:none;color:var(--text);font-size:11px;max-width:200px;transition:all .15s;}
+.src-link:hover{border-color:var(--accent);}
+.src-num{min-width:14px;height:14px;background:var(--s3);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;}
+.src-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.welcome{padding:60px 40px;text-align:center;color:var(--muted);}
+.welcome h2{font-size:24px;color:var(--text);margin-bottom:8px;}
+.welcome .mode-hint{font-size:12px;margin:12px 0 20px;color:var(--dim);}
+.example-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.chip{padding:8px 14px;background:var(--s2);border:1px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;color:var(--muted);transition:all .15s;}
+.chip:hover{border-color:var(--accent);color:var(--text);}
+.thinking{display:flex;align-items:center;gap:10px;padding:13px 16px;background:var(--s1);border:1px solid var(--border);border-radius:4px 18px 18px 18px;font-size:12px;color:var(--muted);}
+.dots span{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);margin:0 1px;animation:bounce 1.4s infinite;}
+.dots span:nth-child(2){animation-delay:.2s;}
+.dots span:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.3;}40%{transform:translateY(-4px);opacity:1;}}
+.input-area{padding:16px 20px;border-top:1px solid var(--border);}
+.input-box{display:flex;align-items:flex-end;gap:10px;background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:10px 10px 10px 16px;}
+.input-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,143,255,.08);}
+textarea{flex:1;background:none;border:none;outline:none;color:var(--text);font:13px 'DM Sans';resize:none;line-height:1.5;max-height:120px;min-height:22px;}
+textarea::placeholder{color:var(--muted);}
+.send-btn{width:36px;height:36px;border-radius:10px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;}
+.send-btn:hover{opacity:.9;}
+.send-btn:disabled{background:var(--s2);color:var(--dim);}
+</style>
+</head>
+<body>
+
+<div id="protocolCheck" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.9);backdrop-filter:blur(5px);z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:40px;max-width:550px;text-align:center;max-height:90vh;overflow-y:auto;">
+    <div style="font-size:48px;margin-bottom:20px;">🔍</div>
+    <h2 style="color:var(--text);margin-bottom:16px;font-size:22px;">API-Diagnose</h2>
+    
+    <div id="diagStatus" style="background:var(--s2);padding:16px;border-radius:8px;margin-bottom:24px;text-align:left;font-size:12px;line-height:1.8;">
+      <div style="color:var(--dim);margin-bottom:8px;">Protokoll:</div>
+      <div id="protocol" style="color:#f1fa8c;margin-bottom:16px;">Prüfe...</div>
+      
+      <div style="color:var(--dim);margin-bottom:8px;">API-Verbindung:</div>
+      <div id="apiStatus" style="color:#f1fa8c;margin-bottom:16px;">Teste...</div>
+      
+      <button onclick="testAPI()" style="width:100%;background:var(--accent);color:#fff;border:none;padding:10px;border-radius:6px;cursor:pointer;font-weight:500;margin-bottom:12px;">API Jetzt Testen</button>
+      
+      <div style="color:var(--dim);font-size:11px;padding-top:12px;border-top:1px solid var(--border);">
+        <strong style="color:var(--text);">Wenn API-Test fehlschlägt:</strong>
+        <div style="margin-top:6px;">
+          • Firewall/VPN blockiert möglicherweise API<br>
+          • Versuche Demo-Modus unten
+        </div>
+      </div>
+    </div>
+    
+    <div style="display:flex;gap:10px;">
+      <button onclick="startDemoMode()" style="flex:1;background:#3dd68c;color:#fff;border:none;padding:10px;border-radius:6px;cursor:pointer;font-weight:500;">🎮 Demo-Modus starten</button>
+      <button onclick="location.reload()" style="flex:1;background:var(--s2);color:var(--text);border:1px solid var(--border);padding:10px;border-radius:6px;cursor:pointer;font-weight:500;">🔄 Neuladen</button>
+    </div>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <button class="new-chat" onclick="newChat()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Neuer Chat
+    </button>
+  </div>
+  
+  <div class="mode-selector">Spezialisierungen</div>
+  <div id="modeList"></div>
+  
+  <div style="flex:1;border-top:1px solid var(--border);padding:8px;overflow-y:auto;">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);padding:8px;margin-bottom:6px;">Chats</div>
+    <div class="chat-list" id="chatList"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="header">
+    <div class="logo">KI <span>Berater</span></div>
+    <div class="mode-badge" id="modeBadge">
+      <div class="mode-badge-dot" id="modeDot"></div>
+      <span id="modeLabel">Allgemein</span>
+    </div>
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="btnCouncil" onclick="setMode('council')">Rat</button>
+      <button class="toggle-btn" id="btnSolo" onclick="setMode('solo')">Solo</button>
+    </div>
+  </div>
+  
+  <div class="chat-area" id="chatArea">
+    <div class="welcome">
+      <h2>KI Berater Pro</h2>
+      <div class="mode-hint">Spezialisierung: <strong id="welcomeMode">Allgemein</strong></div>
+      <p>Wähle eine Spezialisierung oder starte mit einer Frage.</p>
+      <div class="example-chips" id="exampleChips"></div>
+    </div>
+  </div>
+  
+  <div class="input-area">
+    <div class="input-box">
+      <textarea id="input" placeholder="Frage stellen…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const MODES={general:{label:'Allgemein',color:'--general',icon:'🧠',examples:['📊 Aktuelle DAX-Entwicklung','⚡ Wie funktioniert Kernfusion?','🌍 Klimawandel Status 2025'],sys:'Du bist ein allgemeiner KI-Berater. Antworte präzise auf Deutsch (max 4 Absätze).'},code:{label:'Programmierung',color:'--code',icon:'💻',examples:['🐍 Async/Await in Python?','🔧 REST API Design','⚙️ Speicherlecks debuggen'],sys:'Du bist ein Programmier-Expert. Gib Code-Beispiele, erläutere technisch.'},game:{label:'3D-Spiele',color:'--game',icon:'🎮',examples:['🎨 3D-Modelle in Unity?','⚡ Shader-Optimierung','🎯 Collision Detection'],sys:'Du bist ein Game-Development-Experte. Erkläre 3D-Konzepte und Performance.'},web:{label:'Web-Entwicklung',color:'--web',icon:'🌐',examples:['⚛️ React Hooks vs. Classes?','🎨 CSS Grid vs. Flexbox','🚀 Next.js Performance'],sys:'Du bist ein Web-Developer-Expert. Fokus auf Frontend, Backend, Full-Stack.'},data:{label:'Datenanalyse',color:'--data',icon:'📈',examples:['📊 Pandas DataFrame','🤖 Machine Learning Pipelines','📉 Statistische Tests'],sys:'Du bist ein Data-Science-Expert. Erläutere ML, Statistik, Data Engineering.'},write:{label:'Schreiben & Kreativ',color:'--write',icon:'✍️',examples:['📚 Roman-Struktur','✨ Charakterentwicklung','🎬 Drehbuch schreiben'],sys:'Du bist ein Schreib-Coach. Hilf bei Struktur, Storytelling, Stil.'},math:{label:'Mathematik',color:'--math',icon:'∑',examples:['∫ Integralrechnung','📐 Lineare Algebra','🔢 Numerische Methoden'],sys:'Du bist ein Mathe-Experte. Erkläre mit Beispielen und Formeln.'},science:{label:'Naturwissenschaften',color:'--science',icon:'🔬',examples:['⚛️ Quantenmechanik','🧬 CRISPR & Gentechnik','🌌 Astrophysik'],sys:'Du bist ein Wissenschafts-Experte. Erläutere Physik, Chemie, Biologie.'},devops:{label:'DevOps & Cloud',color:'--devops',icon:'☁️',examples:['🐳 Docker vs. Kubernetes','🔐 Security Best Practices','📊 CI/CD Pipelines'],sys:'Du bist ein DevOps-Experte. Fokus auf Cloud, Container, Infrastruktur.'},audio:{label:'Musik & Audio',color:'--audio',icon:'🎵',examples:['🎼 Harmonielehre','🎧 Audio-Mixing Tipps','🎹 DAW-Workflow'],sys:'Du bist ein Audio-Experte. Erläutere Musik, Sound Design, Produktion.'}};const PERSONAS=[{id:'gpt',label:'ChatGPT',cls:'gpt'},{id:'gem',label:'Gemini',cls:'gem'},{id:'cld',label:'Claude',cls:'cld'}];let currentMode='general',chatMode='council',loading=false,currentChatId=null,chats={};function initUIDemo(){const modeList=document.getElementById('modeList');modeList.innerHTML=Object.entries(MODES).map(([k,m])=>`<button class="mode-btn ${k===currentMode?'active':''}" onclick="switchMode('${k}')"><span style="background:var(${m.color})"></span>${m.label}</button>`).join('');updateModeDisplay();try{const s=localStorage.getItem('kb_chats');if(s)chats=JSON.parse(s);}catch(e){}if(!Object.keys(chats).length)newChat();else currentChatId=Object.keys(chats).sort((a,b)=>b.localeCompare(a))[0];renderChatList();renderChat();document.getElementById('sendBtn').onclick=()=>sendMessageDemo();}function sendMessageDemo(){if(loading)return;const i=document.getElementById('input');const t=i.value.trim();if(!t)return;i.value='';autoResize(i);document.getElementById('sendBtn').disabled=true;loading=true;addMsg('user',t);updateChatTitle(currentChatId,t);const demoResponses={general:'Dies ist eine Demo-Antwort. Im normalen Modus würde die **echte KI** hier antworten. Probiere zuerst die API-Verbindung zu testen!',code:'🎮 **Demo-Antwort (Programmierung)**\n\nHier wäre ein Code-Beispiel:\n```python\ndef hello():\n    return "Echte Antwort im Live-Modus"\n```',game:'🎮 **Demo (3D-Spiele)**: Im Live-Modus würde hier eine detaillierte Antwort zu Game Development kommen.',web:'🌐 **Demo (Web)**: Im Live-Modus würde hier eine Antwort zu Web-Development stehen.',data:'📈 **Demo (Data Science)**: Im Live-Modus würde hier ML/Data-Analyse erklärt.',write:'✍️ **Demo (Schreiben)**: Im Live-Modus würde hier Writing-Tipps kommen.',math:'∑ **Demo (Mathematik)**: Im Live-Modus würde hier eine mathematische Erklärung stehen.',science:'🔬 **Demo (Naturwissenschaften)**: Im Live-Modus würde hier eine wissenschaftliche Antwort kommen.',devops:'☁️ **Demo (DevOps)**: Im Live-Modus würde hier DevOps/Cloud-Info stehen.',audio:'🎵 **Demo (Audio)**: Im Live-Modus würde hier eine Audio/Musik-Antwort kommen.'};const mode=currentMode||'general';const resp=demoResponses[mode]||demoResponses.general;setTimeout(()=>{loading=false;document.getElementById('sendBtn').disabled=false;addMsg('assistant',resp,null,null);document.getElementById('input').focus();},800);}function initUI(){const modeList=document.getElementById('modeList');modeList.innerHTML=Object.entries(MODES).map(([k,m])=>`<button class="mode-btn ${k===currentMode?'active':''}" onclick="switchMode('${k}')"><span style="background:var(${m.color})"></span>${m.label}</button>`).join('');updateModeDisplay();try{const s=localStorage.getItem('kb_chats');if(s)chats=JSON.parse(s);}catch(e){}if(!Object.keys(chats).length)newChat();else currentChatId=Object.keys(chats).sort((a,b)=>b.localeCompare(a))[0];renderChatList();renderChat();}function switchMode(m){currentMode=m;localStorage.setItem('kb_mode',m);document.querySelectorAll('.mode-btn').forEach((b,i)=>b.classList.toggle('active',Object.keys(MODES)[i]===m));updateModeDisplay();renderChat();}function updateModeDisplay(){const m=MODES[currentMode];document.getElementById('modeLabel').textContent=m.label;document.getElementById('modeDot').style.background=`var(${m.color})`;document.getElementById('welcomeMode').textContent=m.label;document.getElementById('exampleChips').innerHTML=m.examples.map(e=>`<div class="chip" onclick="askExample(this)">${e}</div>`).join('');document.documentElement.style.setProperty('--accent',getComputedStyle(document.documentElement).getPropertyValue(m.color));}function newChat(){const id='chat_'+Date.now();chats[id]={id,title:'Neuer Chat',messages:[],mode:currentMode};currentChatId=id;saveChatState();renderChatList();renderChat();}function switchChat(id){currentChatId=id;const c=chats[id];if(c&&c.mode&&c.mode!==currentMode)switchMode(c.mode);renderChatList();renderChat();}function saveChatState(){try{localStorage.setItem('kb_chats',JSON.stringify(chats));}catch(e){}}function renderChatList(){const l=document.getElementById('chatList');const ids=Object.keys(chats).sort((a,b)=>b.localeCompare(a));l.innerHTML=ids.map(id=>{const c=chats[id];const m=MODES[c.mode]||MODES.general;const p=c.messages.length?c.messages[c.messages.length-1].content.substring(0,35):'Leer';return `<div class="chat-item ${id===currentChatId?'active':''}" onclick="switchChat('${id}')"><div class="chat-title">${m.icon} ${escHtml(c.title)}</div><div class="chat-meta">${escHtml(p)}…</div></div>`;}).join('');}function updateChatTitle(id,q){if(chats[id]&&chats[id].title==='Neuer Chat'){chats[id].title=q.substring(0,38);saveChatState();renderChatList();}}async function callClaude(sys,msgs){const b={system:sys,messages:msgs,tools:[{type:'web_search_20250305',name:'web_search'}]};let d,m=[...msgs];for(let i=0;i<6;i++){try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...b,messages:m})});if(!r.ok){const e=await r.json().catch(()=>({error:{message:`HTTP ${r.status}`}}));throw new Error(e.error?.message||`HTTP ${r.status}`);}d=await r.json();if(d.error)throw new Error(d.error.message||'API Error');if(d.stop_reason!=='tool_use')break;const t=d.content.filter(x=>x.type==='tool_use');if(!t.length)break;m.push({role:'assistant',content:d.content});m.push({role:'user',content:t.map(x=>({type:'tool_result',tool_use_id:x.id,content:'[]'}))});}catch(e){console.error('API Error:',e);throw e;}}return d;}function extractText(c){return c.filter(x=>x.type==='text').map(x=>x.text).join('');}function extractSources(c){const s=[],seen=new Set();for(const x of c){if(x.type==='web_search_tool_result'&&Array.isArray(x.content)){for(const i of x.content){if(i.type==='web_search_result'&&i.url&&!seen.has(i.url)){seen.add(i.url);s.push({url:i.url,title:i.title||new URL(i.url).hostname});}}}}return s;}function renderChat(){const a=document.getElementById('chatArea');if(!currentChatId||!chats[currentChatId]||!chats[currentChatId].messages.length){const m=MODES[currentMode];a.innerHTML=`<div class="welcome"><h2>KI Berater Pro</h2><div class="mode-hint">Spezialisierung: <strong>${m.label}</strong></div><p>3 KI-Perspektiven für jede Frage.</p><div class="example-chips">${m.examples.map(e=>`<div class="chip" onclick="askExample(this)">${e}</div>`).join('')}</div></div>`;return;}const msgs=chats[currentChatId].messages;a.innerHTML=msgs.map(x=>{if(x.role==='user')return `<div class="msg msg-user"><div class="bubble">${escHtml(x.content)}</div></div>`;const s=x.sources&&x.sources.length?`<div class="sources"><div class="src-label">Quellen</div><div class="src-list">${x.sources.map((z,i)=>`<a class="src-link" href="${z.url}" target="_blank"><span class="src-num">${i+1}</span><span class="src-title">${escHtml(z.title)}</span></a>`).join('')}</div></div>`:'';return `<div class="msg msg-ai"><div class="bubble">${x.personas?`<div class="bubble-head">${x.personas.map(p=>{const e=PERSONAS.find(f=>f.cls===p);return `<div class="c-pill" style="border-color:var(--${p});"><div class="c-dot" style="background:var(--${p})"></div>${e.label}</div>`;}).join('')}<span class="synth">Synthese</span></div>`:''}<div style="padding:14px;font-size:13px;line-height:1.7;">${formatText(x.content)}</div>${s}</div></div>`;}).join('');document.getElementById('chatArea').scrollTop=document.getElementById('chatArea').scrollHeight;}function formatText(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/^#{1,3} (.+)$/gm,'<strong>$1</strong>').replace(/^- (.+)$/gm,'<li>$1</li>').replace(/((<li>.+<\/li>\n?)+)/g,'<ul>$1</ul>').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>').replace(/^/,'<p>').replace(/$/,'</p>');}function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}function askExample(el){document.getElementById('input').value=el.textContent.replace(/^[\S]+\s/,'');sendMessage();}function setMode(m){chatMode=m;document.getElementById('btnCouncil').classList.toggle('active',m==='council');document.getElementById('btnSolo').classList.toggle('active',m==='solo');}function addMsg(r,c,p=null,s=null){if(!currentChatId)newChat();chats[currentChatId].messages.push({role:r,content:c,personas:p,sources:s});saveChatState();renderChat();}function showThinking(){const a=document.getElementById('chatArea');a.innerHTML+=`<div class="msg msg-ai" id="thinking"><div class="thinking"><div class="dots"><span></span><span></span><span></span></div><span>Analysiert…</span></div></div>`;a.scrollTop=a.scrollHeight;}function removeThinking(){const t=document.getElementById('thinking');if(t)t.remove();}async function sendMessage(){if(loading)return;const i=document.getElementById('input');const t=i.value.trim();if(!t)return;i.value='';autoResize(i);document.getElementById('sendBtn').disabled=true;loading=true;addMsg('user',t);updateChatTitle(currentChatId,t);try{const m=MODES[currentMode];const s=`${m.sys} Antworte auf Deutsch (max 4 Absätze).`;if(chatMode==='council'){showThinking();let r=[];for(const p of PERSONAS){try{await new Promise(x=>setTimeout(x,400));const sy=`${s} Du bist ${p.label}. Kurze Analyse (max 2-3 Sätze).`;const d=await callClaude(sy,[{role:'user',content:t}]);if(d&&d.content&&d.content.length){const txt=extractText(d.content);if(txt.trim()){r.push({p:p.cls,text:txt});}}}catch(e){console.error(`${p.label} failed:`,e.message);}}if(r.length>=2){const o=r.map(x=>`[${PERSONAS.find(y=>y.cls===x.p).label}]: ${x.text}`).join('\n\n');const sy=`${s} Kombiniere die Expertenmeinungen zur optimalen Antwort.`;removeThinking();showThinking();try{const d=await callClaude(sy,[{role:'user',content:`${t}\n\n${o}`}]);const re=extractText(d.content);const so=extractSources(d.content);removeThinking();addMsg('assistant',re,r.map(x=>x.p),so);}catch(e){removeThinking();if(r.length){addMsg('assistant',r[0].text,[r[0].p],null);}else{throw new Error('Synthese fehlgeschlagen');}}}else if(r.length===1){removeThinking();addMsg('assistant',r[0].text,[r[0].p],null);}else{removeThinking();showThinking();const d=await callClaude(s,[{role:'user',content:t}]);const re=extractText(d.content);const so=extractSources(d.content);removeThinking();addMsg('assistant',re,null,so);}}else{showThinking();const d=await callClaude(s,[{role:'user',content:t}]);const re=extractText(d.content);const so=extractSources(d.content);removeThinking();addMsg('assistant',re,null,so);}}catch(e){console.error('Error:',e);removeThinking();addMsg('assistant',`⚠ Fehler: ${e.message||'Unbekannter Fehler. Bitte später erneut versuchen.'}`);} loading=false;document.getElementById('sendBtn').disabled=false;document.getElementById('input').focus();}async function testAPI(){document.getElementById('apiStatus').textContent='Teste API...';try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,system:'Antworte mit OK',messages:[{role:'user',content:'test'}]})});if(r.ok){document.getElementById('apiStatus').innerHTML='<span style="color:#3dd68c;">✓ API funktioniert!</span>';}else{document.getElementById('apiStatus').innerHTML='<span style="color:#ff6b6b;">✗ API-Fehler: HTTP '+r.status+'</span>';}}catch(e){document.getElementById('apiStatus').innerHTML='<span style="color:#ff6b6b;">✗ Verbindungsfehler: '+e.message+'</span>';}}function startDemoMode(){localStorage.setItem('demoMode','true');location.reload();}currentMode=localStorage.getItem('kb_mode')||'general';document.addEventListener('DOMContentLoaded',()=>{const demoMode=localStorage.getItem('demoMode');const protocol=window.location.protocol;document.getElementById('protocol').textContent=(protocol==='http:'||protocol==='https:')?'✓ HTTP/HTTPS (Korrekt)':'✗ '+protocol+' (Falsch!)';if(demoMode){document.getElementById('protocolCheck').style.display='none';document.body.style.background='linear-gradient(135deg, rgba(0,200,136,0.1), rgba(255,107,107,0.1))';document.querySelector('.main')&&(document.querySelector('.main').style.borderLeft='3px solid #3dd68c');const banner=document.createElement('div');banner.style.cssText='position:fixed;top:20px;right:20px;background:#3dd68c;color:#000;padding:10px 16px;border-radius:8px;font-weight:600;z-index:100;';banner.textContent='🎮 DEMO-MODUS (keine echten API-Calls)';document.body.appendChild(banner);initUIDemo();}else if(protocol==='http:'||protocol==='https:'){testAPI();document.getElementById('protocolCheck').style.display='flex';}else{document.getElementById('protocolCheck').style.display='flex';}});
+</script>
+</body>
+</html>
